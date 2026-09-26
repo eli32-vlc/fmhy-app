@@ -3,12 +3,13 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -66,19 +67,23 @@ jobs:
       - name: Build universal release APK
         run: flutter build apk --release
 
-      - name: Upload APKs
-        uses: actions/upload-artifact@v4
+      - name: Collect APKs
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/*.apk dist/
+          mv dist/app-release.apk dist/fmhy-x-latest.apk 2>/dev/null || true
+          ls -lh dist
+
+      - uses: actions/upload-artifact@v4
         with:
           name: fmhy-android-apk
-          path: |
-            build/app/outputs/flutter-apk/*.apk
+          path: dist/*.apk
           if-no-files-found: error
           retention-days: 30
 
   ios:
     name: Build unsigned iOS IPA
     needs: analyze-test
-    # Requires a macOS runner.
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
@@ -112,14 +117,58 @@ jobs:
           mkdir -p build/ios/ipa_payload/Payload
           cp -R "$APP_DIR" build/ios/ipa_payload/Payload/Runner.app
           cd build/ios/ipa_payload
-          zip -q -r -X "$GITHUB_WORKSPACE/fmhy-unsigned.ipa" Payload
+          zip -q -r -X "$GITHUB_WORKSPACE/fmhy-x-unsigned.ipa" Payload
           cd "$GITHUB_WORKSPACE"
-          ls -lh fmhy-unsigned.ipa
+          ls -lh fmhy-x-unsigned.ipa
 
-      - name: Upload unsigned IPA
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: fmhy-ios-unsigned-ipa
-          path: fmhy-unsigned.ipa
+          path: fmhy-x-unsigned.ipa
           if-no-files-found: error
           retention-days: 30
+
+  # Publishes a permanent, public, no-login download on the Releases page.
+  # Runs only for version tags; ordinary pushes stay on the Actions artifacts.
+  release:
+    name: Publish release
+    needs: [android, ios]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Collect release files
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          find dist -name '*.apk' -exec mv {} release/ \;
+          find dist -name '*.ipa' -exec mv {} release/ \;
+          ls -lh release
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true
+          body: |
+            ## Downloads
+
+            | Platform | File | Notes |
+            | --- | --- | --- |
+            | Android | `app-arm64-v8a-release.apk` | Most modern phones |
+            | Android | `app-armeabi-v7a-release.apk` | Older 32-bit devices |
+            | Android | `app-x86_64-release.apk` | Emulators |
+            | iOS | `fmhy-x-unsigned.ipa` | Unsigned - needs signing |
+
+            Android builds are signed with the debug key, so they install
+            directly but are not Play Store ready.
+
+            The iOS `.ipa` is unsigned. You must sign it with your own Apple
+            developer certificate and provisioning profile before installing,
+            for example with `flutter build ipa --export-method development`
+            or a tool such as Sideloadly or AltStore.
