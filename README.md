@@ -11,6 +11,10 @@ Flutter client for [FreeMediaHeckYeah](https://fmhy.net) — the free media reso
 - Open, copy, and share any entry URL
 - Export and import favorites and history as JSON
 
+## Download
+
+Get the latest build from the [releases page](https://github.com/eli32-vlc/fmhy-app/releases/latest) — public, no sign-in needed.
+
 ## Build
 
 ```bash
@@ -21,10 +25,9 @@ flutter build apk --release
 
 ## CI
 
-Every push to `main` runs analyze, tests, and builds:
-
-- Android debug and release APKs
-- Unsigned iOS `.ipa`
+Every push to `main` runs analyze, tests, and builds Android APKs plus an
+unsigned iOS `.ipa`. Pushing a `v*` tag also publishes both to the
+[releases page](https://github.com/eli32-vlc/fmhy-app/releases).
 
 ## Content
 
