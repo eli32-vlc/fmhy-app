@@ -1,0 +1,19 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-raw-types: true
+  errors:
+    # Treat unused code and missing docs on public members as errors.
+    unused_import: error
+    unused_local_variable: error
+    dead_code: error
+
+linter:
+  rules:
+    - prefer_final_locals
+    - prefer_single_quotes
+    - avoid_print
+    - require_trailing_commas
+    - unawaited_futures
