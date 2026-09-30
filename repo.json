@@ -1,0 +1,22 @@
+{
+  "name": "FMHY App",
+  "identifier": "repo.fmhy.fmhyApp.0d9d8137",
+  "subtitle": "Official FMHY iOS App",
+  "description": "This is the official FMHY App Repo",
+  "iconURL": "https://fmhy.net/test.png",
+  "headerURL": "https://github.com/user-attachments/assets/0d43950d-a56f-437f-b9f6-afaed2313370",
+  "website": "https://fmhy.net",
+  "tintColor": "#e965f7",
+  "apps": [
+    {
+      "name": "FMHY X",
+      "bundleIdentifier": "app.fmhy.fmhyApp",
+      "developerName": "FMHY",
+      "version": "1.0.0",
+      "versionDate": "2026-09-26",
+      "versionDescription": "initial Release",
+      "downloadURL": "https://github.com/eli32-vlc/fmhy-app/releases/download/v1.0.0/fmhy-x-unsigned.ipa",
+      "size": 24695805
+    }
+  ]
+}

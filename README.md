@@ -32,3 +32,7 @@ unsigned iOS `.ipa`. Pushing a `v*` tag also publishes both to the
 ## Content
 
 Data comes from [fmhy.net](https://fmhy.net) and the app is affiliated with the project, but it is not an official release.
+
+## iOS App
+
+To simplify the iOS signing service, there is a AltStore/SideStore Repository to add to those signing apps. [Here](https://raw.githubusercontent.com/jbgy/fmhy-app/refs/heads/main/repo.json) is the URL for compatible apps.
